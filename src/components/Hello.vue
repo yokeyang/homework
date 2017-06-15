@@ -10,14 +10,14 @@
     </p>
     <div class="tabs">
       <div class="tab" v-for="tab in tabs">
-        <ul>
-          <li v-for="ta in tab">
-            <div class = "screen" v-for="t in ta" v-bind:style="{visibility:t.hide,backgroundColor:t.color}"></div>
+        <ul  v-for="ta in tab">
+          <li v-for="t in ta">
+            <div class = "screen" v-bind:style="{visibility:t.hide,backgroundColor:t.color}"></div>
           </li>
         </ul>
       </div>
     </div>
-    <b-button @click="Start">Start</b-button>
+    <b-button @click="Start(list)">Start</b-button>
   </div>
 </template>
 
@@ -27,43 +27,85 @@ export default {
   data () {
     return {
       list: [
-        [{hide: '', color: 'white'}, {hide: '', color: 'red'}, {hide: '', color: 'white'}, {hide: '', color: 'white'}],
+        [{hide: '', color: 'white'}, {hide: '', color: 'white'}, {hide: '', color: 'red'}, {hide: '', color: 'white'}],
         [{hide: '', color: 'white'}, {hide: '', color: 'white'}, {hide: '', color: 'white'}, {hide: '', color: 'white'}],
         [{hide: '', color: 'white'}, {hide: '', color: 'white'}, {hide: '', color: 'white'}, {hide: '', color: 'white'}],
         [{hide: '', color: 'white'}, {hide: '', color: 'white'}, {hide: '', color: 'white'}, {hide: '', color: 'white'}]
       ],
       tabs: [
         [
-          [{hide: 'hidden', color: '#FFFF00'}, {hide: '', color: '#FFFF00'}],
+          [{hide: 'hidden', color: 'white'}, {hide: '', color: '#FFFF00'}],
           [{hide: '', color: '#FFFF00'}, {hide: '', color: '#FFFF00'}]
         ],
         [
-          [{hide: '', color: '#336633'}, {hide: 'hidden', color: '#336633'}],
+          [{hide: '', color: '#336633'}, {hide: 'hidden', color: 'white'}],
           [{hide: '', color: '#336633'}, {hide: '', color: '#336633'}]
         ],
         [
           [{hide: '', color: '#CC6666'}, {hide: '', color: '#CC6666'}],
-          [{hide: 'hidden', color: '#CC6666'}, {hide: '', color: '#CC6666'}]
+          [{hide: 'hidden', color: 'white'}, {hide: '', color: '#CC6666'}]
         ],
         [
           [{hide: '', color: '#6633CC'}, {hide: '', color: '#6633CC'}],
-          [{hide: '', color: '#6633CC'}, {hide: 'hidden', color: '#6633CC'}]
+          [{hide: '', color: '#6633CC'}, {hide: 'hidden', color: 'white'}]
         ]
-      ]
+      ],
+      nums: 0
     }
   },
   methods: {
-    Start () {
-      var len = this.list.length / 2 - 1
-      var list = this.list
+    Start: function (list) {
       for (var i in list) {
         for (var j in list[i]) {
-          if (list[i][j].color === 'red') {
-            var num = i <= len && j <= len ? 0 : i > len && j <= len ? 1 : i <= len && j > len ? 2 : 3
-            console.log(num)
+          if (list[i][j].color !== 'white') {
+            var row = i
+            var col = j
+            console.log(i, j)
           }
         }
       }
+      this.ChessBoard(0, 0, row, col, 4)
+    },
+    ChessBoard: function (tr, tc, dr, dc, size) {
+      var s
+      if (size === 1) {
+        return
+      }
+      s = size / 2
+      if (dr < tr + s && dc < tc + s) {
+        this.fill(tr + s - 1, tc + s - 1, this.list, this.tabs[0])
+        this.ChessBoard(tr, tc, dr, dc, s)
+        this.ChessBoard(tr, tc + s, tr + s - 1, tc + s, s)
+        this.ChessBoard(tr + s, tc + s, tr + s, tc + s, s)
+        this.ChessBoard(tr + s, tc, tr + s, tc + s - 1, s)
+      }
+      if (dr < tr + s && dc >= tc + s) {
+        this.fill(tr + s - 1, tc + s - 1, this.list, this.tabs[1])
+        this.ChessBoard(tr, tc + s, dr, dc, s)
+        this.ChessBoard(tr, tc, tr + s - 1, tc + s - 1, s)
+        this.ChessBoard(tr + s, tc, tr + s, tc + s - 1, s)
+        this.ChessBoard(tr + s, tc + s, tr + s, tc + s, s)
+      }
+      if (dr >= tr + s && dc < tc + s) {
+        this.fill(tr + s - 1, tc + s - 1, this.list, this.tabs[2])
+        this.ChessBoard(tr + 1, tc, dr, dc, s)
+        this.ChessBoard(tr, tc, tr + s - 1, tc + s - 1, s)
+        this.ChessBoard(tr, tc + s, tr + s - 1, tc + s, s)
+        this.ChessBoard(tr + s, tc + s, tr + s, tc + s, s)
+      }
+      if (dr >= tr + s && dc >= tc + s) {
+        this.fill(tr + s - 1, tc + s - 1, this.list, this.tabs[3])
+        this.ChessBoard(tr + 1, tc + 1, dr, dc, s)
+        this.ChessBoard(tr + s, tc, tr + s - 1, tc + s, s)
+        this.ChessBoard(tr, tc, tr + s - 1, tc + s - 1, s)
+        this.ChessBoard(tr, tc + s, tr + s - 1, tc + s, s)
+      }
+    },
+    fill: (i, j, a1, a2) => {
+      a1[i][j].color = a1[i][j].color === 'white' ? a2[0][0].color : a1[i][j].color
+      a1[i][j + 1].color = a1[i][j + 1].color === 'white' ? a2[0][1].color : a1[i][j + 1].color
+      a1[i + 1][j].color = a1[i + 1][j].color === 'white' ? a2[1][0].color : a1[i + 1][j].color
+      a1[i + 1][j + 1].color = a1[i + 1][j + 1].color === 'white' ? a2[1][1].color : a1[i + 1][j + 1].color
     }
   }
 }
